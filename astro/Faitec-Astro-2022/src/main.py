@@ -25,7 +25,7 @@ while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        elif event.type == pygame.MOUSEBUTTONDOWN:
             # get mouse click
             # x_mouse, y_mouse = event.pos[0], event.pos[1]
             mouse = event.pos
