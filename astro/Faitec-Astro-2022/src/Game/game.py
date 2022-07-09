@@ -56,7 +56,7 @@ def game_loop(screen: any, screen_i):
 
     # Fonte
 
-    font_score = pygame.font.SysFont("src\Game\letras\PixelGameFont.ttf", 50)
+    font_score = pygame.font.SysFont("src\Game\letras\PixelGameFont.ttf", 40)
     font_pause = pygame.font.SysFont("src\Game\letras\PixelGameFont.ttf", 200)
 
     # Velocidade da locomoção da nave e míssil pelo eixo x
@@ -91,6 +91,13 @@ def game_loop(screen: any, screen_i):
     gameplay_bg = pygame.transform.scale(
         gameplay_bg, (screen_i[0][0], screen_i[0][1]))
 
+    sol_rect = sol.get_rect()
+    saturno_rect = saturno.get_rect()
+    lua_rect = lua.get_rect()
+    p_terra_rect = p_terra.get_rect()
+    missil_rect = missil.get_rect()
+
+    # Função para o missil dar respawn
     def respawn_missil():
         triggered = False
         respawn_missil_x = pos_nave_x + 57
@@ -98,9 +105,19 @@ def game_loop(screen: any, screen_i):
         vel_missil_y = 5
         return [respawn_missil_x, respawn_missil_y, triggered, vel_missil_y]
 
+    # Gerador de valores e operações aleatórias para as operações aritméticas
+    def gerador_de_valores():
+        a = random.randint(1, 10)
+        b = random.randint(1, 10)
+        c = random.randint(1, 2)
+        return [a, b, c]
+
+    a, b, c = gerador_de_valores()
+
     rodando = 0
     pausado = 1
     jogo = rodando
+    res = 0
 
     # Loop da gameplay
     while True:
@@ -120,11 +137,13 @@ def game_loop(screen: any, screen_i):
                     else:
                         jogo = rodando
         if jogo == pausado:
-            pause = font_pause.render(f' PAUSADO ', True, (255, 255, 0))
+            pause = font_pause.render(
+                f' PAUSADO ', True, (255, 255, 0))
             screen.blit(pause, (390, 250))
             pygame.mouse.set_visible(True)
             pygame.display.flip()
             continue
+
         # Imagens
         screen.blit(gameplay_bg, [0, 0])
         screen.blit(missil, (pos_missil_x, pos_missil_y))
@@ -133,6 +152,13 @@ def game_loop(screen: any, screen_i):
         screen.blit(saturno, (pos_saturno_x, pos_alvo_y))
         screen.blit(lua, (pos_lua_x, pos_alvo_y))
         screen.blit(p_terra, (pos_p_terra_x, pos_alvo_y))
+
+        # Colisão
+        pygame.draw.rect(screen, (255, 0, 0), sol_rect, 4)
+        pygame.draw.rect(screen, (255, 0, 0), saturno_rect, 4)
+        pygame.draw.rect(screen, (255, 0, 0), lua_rect, 4)
+        pygame.draw.rect(screen, (255, 0, 0), p_terra_rect, 4)
+        pygame.draw.rect(screen, (255, 0, 0), missil_rect, 4)
 
         # Movimentação da nave e do míssil pelo eixo x
         pos_nave_x = pos_nave_x + vel_x
@@ -144,7 +170,7 @@ def game_loop(screen: any, screen_i):
             vel_x += 1
             vel_missil_x += 1
 
-        # Disparo do míssil
+        # Disparo e respawn do míssil
         if triggered == False:
             pos_missil_x = pos_missil_x + vel_missil_x
         if triggered == True:
@@ -152,10 +178,30 @@ def game_loop(screen: any, screen_i):
             if pos_missil_y < 0:
                 pos_missil_x, pos_missil_y, triggered, vel_missil_y = respawn_missil()
 
+        # Posição do rect
+        sol_rect.x = pos_sol_x
+        sol_rect.y = pos_alvo_y
+        saturno_rect.x = pos_saturno_x
+        saturno_rect.y = pos_alvo_y
+        lua_rect.x = pos_lua_x
+        lua_rect.y = pos_alvo_y
+        p_terra_rect.x = pos_p_terra_x
+        p_terra_rect.y = pos_alvo_y
+        missil_rect.x = pos_missil_x
+        missil_rect.y = pos_missil_y
+
         # Score
+        if c == 1:
+            op = "+"
+            res = a + b
+
+        elif c == 2:
+            op = "-"
+            res = a - b
+
         score = font_score.render(
-            f' Hello World ', True, (255, 255, 0))
-        screen.blit(score, (1260, 50))
+            f' Operação: {int(a)} {op} {int(b)} = {res}', True, (255, 255, 0))
+        screen.blit(score, (1210, 50))
 
         pygame.display.update()
     pygame.quit()
