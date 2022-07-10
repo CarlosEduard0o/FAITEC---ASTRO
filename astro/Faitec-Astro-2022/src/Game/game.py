@@ -4,6 +4,8 @@ from globalFunctions import click
 from Pause.pause import pauseGame
 from Menu.menu import menu_init, exit_game
 
+pontos = 10
+
 # def initialize button button menu
 
 
@@ -56,8 +58,10 @@ def game_loop(screen: any, screen_i):
 
     # Fonte
 
-    font_score = pygame.font.SysFont("src\Game\letras\PixelGameFont.ttf", 40)
+    font_op = pygame.font.SysFont("src\Game\letras\PixelGameFont.ttf", 40)
     font_pause = pygame.font.SysFont("src\Game\letras\PixelGameFont.ttf", 200)
+    font_score = pygame.font.SysFont("src\Game\letras\PixelGameFont.ttf", 40)
+    calvo_sort = pygame.font.SysFont("src\Game\letras\PixelGameFont.ttf", 40)
 
     # Velocidade da locomoção da nave e míssil pelo eixo x
     vel_x = 1  # Nave
@@ -114,10 +118,40 @@ def game_loop(screen: any, screen_i):
 
     a, b, c = gerador_de_valores()
 
+    # Resultado no alvo
+    def arm_alvo():
+        sorteio = random.randint(1, 4)
+        if sorteio == 1:
+            alvo_sort = sol_rect
+            print_alvo = "sol"
+        elif sorteio == 2:
+            alvo_sort = saturno_rect
+            print_alvo = "saturno"
+        elif sorteio == 3:
+            alvo_sort = lua_rect
+            print_alvo = "lua"
+        elif sorteio == 4:
+            alvo_sort = p_terra_rect
+            print_alvo = "p_terra"
+        return(alvo_sort, print_alvo)
+
+    alvo_sort, print_alvo = arm_alvo()
+
     rodando = 0
     pausado = 1
     jogo = rodando
     res = 0
+    pontos = 5
+
+    '''def colisions():
+        global pontos
+        # Subtrair ponto se atirar no alvo errado
+        # Adicionar ponto se acertar o algo
+        if missil_rect.colliderect(alvo_sort):
+            pontos += 1
+            return True
+        else:
+            return False'''
 
     # Loop da gameplay
     while True:
@@ -177,6 +211,15 @@ def game_loop(screen: any, screen_i):
             pos_missil_y = pos_missil_y - vel_missil_y
             if pos_missil_y < 0:
                 pos_missil_x, pos_missil_y, triggered, vel_missil_y = respawn_missil()
+            if missil_rect.colliderect(alvo_sort):
+                alvo_sort, print_alvo = arm_alvo()
+                pos_missil_x, pos_missil_y, triggered, vel_missil_y = respawn_missil()
+                a, b, c = gerador_de_valores() 
+                pontos += 1
+
+        calvo_sort = font_op.render(
+            f' Alvo: {print_alvo}', True, (255, 255, 0))
+        screen.blit(calvo_sort, (1210, 150))
 
         # Posição do rect
         sol_rect.x = pos_sol_x
@@ -191,6 +234,10 @@ def game_loop(screen: any, screen_i):
         missil_rect.y = pos_missil_y
 
         # Score
+        score = font_score.render(
+            f' Pontuação: {int(pontos)}', True, (255, 255, 0))
+        screen.blit(score, (1210, 200))
+
         if c == 1:
             op = "+"
             res = a + b
@@ -199,9 +246,9 @@ def game_loop(screen: any, screen_i):
             op = "-"
             res = a - b
 
-        score = font_score.render(
+        opera = font_op.render(
             f' Operação: {int(a)} {op} {int(b)} = {res}', True, (255, 255, 0))
-        screen.blit(score, (1210, 50))
+        screen.blit(opera, (1210, 50))
 
         pygame.display.update()
     pygame.quit()
