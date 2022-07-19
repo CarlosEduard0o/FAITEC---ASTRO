@@ -33,8 +33,7 @@ def loading_game(screen: any, screen_i):
             image_path = "src\Game\Images\Loading\Loading_GO.png"
 
         background_image = pygame.image.load(image_path).convert()
-        background_image = pygame.transform.scale(
-            background_image, (screen_i[0][0], screen_i[0][1]))
+        background_image = pygame.transform.scale(background_image, (screen_i[0][0], screen_i[0][1]))
         screen.blit(background_image, [0, 0])
         pygame.display.flip()
         pygame.time.delay(1000)
@@ -62,8 +61,8 @@ def game_loop(screen: any, screen_i):
     calvo_sort = pygame.font.SysFont("src\Game\letras\PixelGameFont.ttf", 40)
 
     # Velocidade da locomoção da nave e míssil pelo eixo x
-    vel_x = 1  # Nave
-    vel_missil_x = 1  # Missil
+    vel_x = 2  # Nave
+    vel_missil_x = 2  # Missil
 
     # Velocidade do tiro
     vel_missil_y = 5
@@ -88,10 +87,8 @@ def game_loop(screen: any, screen_i):
     missil = pygame.transform.scale(missil, (60, 60))
 
     # Background da gameplay
-    gameplay_bg = pygame.image.load(
-        "src\Game\gameplay\gameplay_bg.png").convert()
-    gameplay_bg = pygame.transform.scale(
-        gameplay_bg, (screen_i[0][0], screen_i[0][1]))
+    gameplay_bg = pygame.image.load("src\Game\gameplay\gameplay_bg.png").convert()
+    gameplay_bg = pygame.transform.scale(gameplay_bg, (screen_i[0][0], screen_i[0][1]))
 
     sol_rect = sol.get_rect()
     saturno_rect = saturno.get_rect()
@@ -124,32 +121,22 @@ def game_loop(screen: any, screen_i):
             res = a - b
 
         if sorteio == 1:
-            alvo_sort = [sol_rect, "sol", res]
+            alvo_sort = [sol_rect, "sol", res, saturno_rect, "saturno", (res - b), lua_rect, "lua", (res + a), p_terra_rect, "p_terra", (res - c)]
         elif sorteio == 2:
-            alvo_sort = [saturno_rect, "saturno", res]
+            alvo_sort = [saturno_rect, "saturno", res, sol_rect, "sol", (res + c), p_terra_rect, "p_terra", (res - a), lua_rect, "lua", (res + b)]
         elif sorteio == 3:
-            alvo_sort = [lua_rect, "lua", res]
+            alvo_sort = [lua_rect, "lua", res, p_terra_rect, "p_terra", (res - c), saturno_rect, "saturno", (res + a), sol_rect, "sol", (res - b)]
         elif sorteio == 4:
-            alvo_sort = [p_terra_rect, "p_terra", res]
+            alvo_sort = [p_terra_rect, "p_terra", res, saturno_rect, "saturno", (res + b), lua_rect, "lua", (res - a), sol_rect, "sol", (res + b)]
 
-        return(a, b, op, alvo_sort)
+        return(a, b, sorteio, op, alvo_sort)
 
-    a, b, op, alvo_sort = arm_alvo()
+    a, b, sorteio, op, alvo_sort = arm_alvo()
 
     rodando = 0
     pausado = 1
     jogo = rodando
     pontos = 5
-
-    '''def colisions():
-        global pontos
-        # Subtrair ponto se atirar no alvo errado
-        # Adicionar ponto se acertar o algo
-        if missil_rect.colliderect(alvo_sort):
-            pontos += 1
-            return True
-        else:
-            return False'''
 
     # Loop da gameplay
     while True:
@@ -169,8 +156,7 @@ def game_loop(screen: any, screen_i):
                     else:
                         jogo = rodando
         if jogo == pausado:
-            pause = font_pause.render(
-                f' PAUSADO ', True, (255, 255, 0))
+            pause = font_pause.render(f' PAUSADO ', True, (255, 255, 0))
             screen.blit(pause, (390, 250))
             pygame.mouse.set_visible(True)
             pygame.display.flip()
@@ -192,16 +178,6 @@ def game_loop(screen: any, screen_i):
         pygame.draw.rect(screen, (255, 0, 0), p_terra_rect, 4)
         pygame.draw.rect(screen, (255, 0, 0), missil_rect, 4)
 
-        # Movimentação da nave e do míssil pelo eixo x
-        pos_nave_x = pos_nave_x + vel_x
-        if (pos_nave_x + 150) > 1240:
-            vel_x -= 1
-            vel_missil_x -= 1
-
-        if (pos_nave_x) < 0:
-            vel_x += 1
-            vel_missil_x += 1
-
         # Disparo e respawn do míssil
         if triggered == False:
             pos_missil_x = pos_missil_x + vel_missil_x
@@ -210,13 +186,25 @@ def game_loop(screen: any, screen_i):
             if pos_missil_y < 0:
                 pos_missil_x, pos_missil_y, triggered, vel_missil_y = respawn_missil()
             if missil_rect.colliderect(alvo_sort[0]):
-                a, b, op, alvo_sort = arm_alvo()
+                a, b, sorteio, op, alvo_sort = arm_alvo()
                 pos_missil_x, pos_missil_y, triggered, vel_missil_y = respawn_missil()
-                pontos += 1
+                pontos += 1         
+                # Progredir com a velocidade conforme vai acertando
+            elif (missil_rect.colliderect(alvo_sort[3])) or (missil_rect.colliderect(alvo_sort[6])) or (missil_rect.colliderect(alvo_sort[9])):
+                a, b, sorteio, op, alvo_sort = arm_alvo()
+                pos_missil_x, pos_missil_y, triggered, vel_missil_y = respawn_missil()
+                pontos -= 1
+                # Colocar aqui a derrota      
 
-        calvo_sort = font_op.render(
-            f' Alvo: {alvo_sort[1]}', True, (255, 255, 0))
-        screen.blit(calvo_sort, (1210, 150))
+        # Movimentação da nave e do míssil pelo eixo x
+        pos_nave_x = pos_nave_x + vel_x
+        if (pos_nave_x + 150) > 1240:
+            vel_x -= 2
+            vel_missil_x -= 2
+
+        if (pos_nave_x) < 0:
+            vel_x += 2
+            vel_missil_x += 2
 
         # Posição do rect
         sol_rect.x = pos_sol_x
@@ -231,13 +219,50 @@ def game_loop(screen: any, screen_i):
         missil_rect.y = pos_missil_y
 
         # Score
-        score = font_score.render(
-            f' Pontuação: {int(pontos)}', True, (255, 255, 0))
-        screen.blit(score, (1210, 200))
 
-        opera = font_op.render(
-            f' Operação: {int(a)} {op} {int(b)} = {alvo_sort[2]}', True, (255, 255, 0))
+        opera = font_op.render(f' Operação: {int(a)} {op} {int(b)} = ?', True, (255, 255, 0))
         screen.blit(opera, (1210, 50))
+
+        if sorteio == 1:
+            calvo_sort = font_op.render(f'{alvo_sort[1]} : {alvo_sort[2]}', True, (255, 255, 0))
+            screen.blit(calvo_sort, (1210, 250))
+            calvo_sort = font_op.render(f'{alvo_sort[4]} : {alvo_sort[5]}', True, (255, 255, 0))
+            screen.blit(calvo_sort, (1210, 200))
+            calvo_sort = font_op.render(f'{alvo_sort[7]} : {alvo_sort [8]}', True, (255, 255, 0))
+            screen.blit(calvo_sort, (1210, 150))
+            calvo_sort = font_op.render(f'{alvo_sort[10]} : {alvo_sort[11]}', True, (255, 255, 0))
+            screen.blit(calvo_sort, (1210, 300))
+        elif sorteio == 2:
+            calvo_sort = font_op.render(f'{alvo_sort[1]} : {alvo_sort[2]}', True, (255, 255, 0))
+            screen.blit(calvo_sort, (1210, 200))
+            calvo_sort = font_op.render(f'{alvo_sort[4]} : {alvo_sort[5]}', True, (255, 255, 0))
+            screen.blit(calvo_sort, (1210, 250))
+            calvo_sort = font_op.render(f'{alvo_sort[7]} : {alvo_sort [8]}', True, (255, 255, 0))
+            screen.blit(calvo_sort, (1210, 150))
+            calvo_sort = font_op.render(f'{alvo_sort[10]} : {alvo_sort[11]}', True, (255, 255, 0))
+            screen.blit(calvo_sort, (1210, 300))
+        elif sorteio == 3:
+            calvo_sort = font_op.render(f'{alvo_sort[1]} : {alvo_sort[2]}', True, (255, 255, 0))
+            screen.blit(calvo_sort, (1210, 300))
+            calvo_sort = font_op.render(f'{alvo_sort[4]} : {alvo_sort[5]}', True, (255, 255, 0))
+            screen.blit(calvo_sort, (1210, 250))
+            calvo_sort = font_op.render(f'{alvo_sort[7]} : {alvo_sort [8]}', True, (255, 255, 0))
+            screen.blit(calvo_sort, (1210, 150))
+            calvo_sort = font_op.render(f'{alvo_sort[10]} : {alvo_sort[11]}', True, (255, 255, 0))
+            screen.blit(calvo_sort, (1210, 200))
+        elif sorteio == 4:
+            calvo_sort = font_op.render(f'{alvo_sort[1]} : {alvo_sort [2]}', True, (255, 255, 0))
+            screen.blit(calvo_sort, (1210, 150))
+            calvo_sort = font_op.render(f'{alvo_sort[4]} : {alvo_sort[5]}', True, (255, 255, 0))
+            screen.blit(calvo_sort, (1210, 300))
+            calvo_sort = font_op.render(f'{alvo_sort[7]} : {alvo_sort[8]}', True, (255, 255, 0))
+            screen.blit(calvo_sort, (1210, 200))
+            calvo_sort = font_op.render(f'{alvo_sort[10]} : {alvo_sort[11]}', True, (255, 255, 0))
+            screen.blit(calvo_sort, (1210, 250))
+
+
+        score = font_score.render(f' Pontuação: {int(pontos)}', True, (255, 255, 0))
+        screen.blit(score, (1210, 500))
 
         pygame.display.update()
     pygame.quit()
