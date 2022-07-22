@@ -52,6 +52,7 @@ def game_loop(screen: any, screen_i):
     pos_missil_y = pos_nave_y
     pos_alvo_y = 50
     triggered = False
+    contador = 0
 
     # Fonte
 
@@ -59,6 +60,7 @@ def game_loop(screen: any, screen_i):
     font_pause = pygame.font.SysFont("src\Game\letras\PixelGameFont.ttf", 200)
     font_score = pygame.font.SysFont("src\Game\letras\PixelGameFont.ttf", 40)
     calvo_sort = pygame.font.SysFont("src\Game\letras\PixelGameFont.ttf", 40)
+    cronometro_font = pygame.font.SysFont("src\Game\letras\PixelGameFont.ttf", 40)
 
     # Velocidade da locomoção da nave e míssil pelo eixo x
     vel_x = 2  # Nave
@@ -205,6 +207,7 @@ def game_loop(screen: any, screen_i):
         if (pos_nave_x) < 0:
             vel_x += 2
             vel_missil_x += 2
+            contador += 1
 
         # Posição do rect
         sol_rect.x = pos_sol_x
@@ -263,6 +266,11 @@ def game_loop(screen: any, screen_i):
 
         score = font_score.render(f' Pontuação: {int(pontos)}', True, (255, 255, 0))
         screen.blit(score, (1210, 500))
+
+        tempo = contador / 2
+        cronometro = cronometro_font.render(f' Tempo: {tempo}', True, (255, 255, 0))
+        screen.blit(cronometro, (1210, 700))
+
 
         pygame.display.update()
     pygame.quit()
