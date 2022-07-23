@@ -58,9 +58,9 @@ def game_loop(screen: any, screen_i):
 
     font_op = pygame.font.SysFont("src\Game\letras\PixelGameFont.ttf", 40)
     font_pause = pygame.font.SysFont("src\Game\letras\PixelGameFont.ttf", 200)
-    font_score = pygame.font.SysFont("src\Game\letras\PixelGameFont.ttf", 40)
-    calvo_sort = pygame.font.SysFont("src\Game\letras\PixelGameFont.ttf", 40)
-    cronometro_font = pygame.font.SysFont("src\Game\letras\PixelGameFont.ttf", 40)
+    #font_score = pygame.font.SysFont("src\Game\letras\PixelGameFont.ttf", 40)
+    #f_alvo_sort = pygame.font.SysFont("src\Game\letras\PixelGameFont.ttf", 40)
+    #cronometro_font = pygame.font.SysFont("src\Game\letras\PixelGameFont.ttf", 40)
 
     # Velocidade da locomoção da nave e míssil pelo eixo x
     vel_x = 2  # Nave
@@ -136,6 +136,7 @@ def game_loop(screen: any, screen_i):
     a, b, sorteio, op, alvo_sort = arm_alvo()
 
     rodando = 0
+    derrota = 0
     pausado = 1
     jogo = rodando
     pontos = 5
@@ -190,13 +191,15 @@ def game_loop(screen: any, screen_i):
             if missil_rect.colliderect(alvo_sort[0]):
                 a, b, sorteio, op, alvo_sort = arm_alvo()
                 pos_missil_x, pos_missil_y, triggered, vel_missil_y = respawn_missil()
-                pontos += 1         
+                pontos += 1 
+                contador = 0        
                 # Progredir com a velocidade conforme vai acertando
             elif (missil_rect.colliderect(alvo_sort[3])) or (missil_rect.colliderect(alvo_sort[6])) or (missil_rect.colliderect(alvo_sort[9])):
-                a, b, sorteio, op, alvo_sort = arm_alvo()
-                pos_missil_x, pos_missil_y, triggered, vel_missil_y = respawn_missil()
-                pontos -= 1
-                # Colocar aqui a derrota      
+                #a, b, sorteio, op, alvo_sort = arm_alvo()
+                #pos_missil_x, pos_missil_y, triggered, vel_missil_y = respawn_missil()
+                #pontos -= 1
+                # Colocar aqui a derrota   
+                pygame.quit()
 
         # Movimentação da nave e do míssil pelo eixo x
         pos_nave_x = pos_nave_x + vel_x
@@ -208,6 +211,11 @@ def game_loop(screen: any, screen_i):
             vel_x += 2
             vel_missil_x += 2
             contador += 1
+            if contador == 10:
+                jogo = derrota
+                if jogo == derrota:
+                    pygame.quit()
+                
 
         # Posição do rect
         sol_rect.x = pos_sol_x
@@ -227,48 +235,48 @@ def game_loop(screen: any, screen_i):
         screen.blit(opera, (1210, 50))
 
         if sorteio == 1:
-            calvo_sort = font_op.render(f'{alvo_sort[1]} : {alvo_sort[2]}', True, (255, 255, 0))
-            screen.blit(calvo_sort, (1210, 250))
-            calvo_sort = font_op.render(f'{alvo_sort[4]} : {alvo_sort[5]}', True, (255, 255, 0))
-            screen.blit(calvo_sort, (1210, 200))
-            calvo_sort = font_op.render(f'{alvo_sort[7]} : {alvo_sort [8]}', True, (255, 255, 0))
-            screen.blit(calvo_sort, (1210, 150))
-            calvo_sort = font_op.render(f'{alvo_sort[10]} : {alvo_sort[11]}', True, (255, 255, 0))
-            screen.blit(calvo_sort, (1210, 300))
+            alvo = font_op.render(f'{alvo_sort[1]} : {alvo_sort[2]}', True, (255, 255, 0))
+            screen.blit(alvo, (1210, 250))
+            alvo = font_op.render(f'{alvo_sort[4]} : {alvo_sort[5]}', True, (255, 255, 0))
+            screen.blit(alvo, (1210, 200))
+            alvo = font_op.render(f'{alvo_sort[7]} : {alvo_sort [8]}', True, (255, 255, 0))
+            screen.blit(alvo, (1210, 150))
+            alvo = font_op.render(f'{alvo_sort[10]} : {alvo_sort[11]}', True, (255, 255, 0))
+            screen.blit(alvo, (1210, 300))
         elif sorteio == 2:
-            calvo_sort = font_op.render(f'{alvo_sort[1]} : {alvo_sort[2]}', True, (255, 255, 0))
-            screen.blit(calvo_sort, (1210, 200))
-            calvo_sort = font_op.render(f'{alvo_sort[4]} : {alvo_sort[5]}', True, (255, 255, 0))
-            screen.blit(calvo_sort, (1210, 250))
-            calvo_sort = font_op.render(f'{alvo_sort[7]} : {alvo_sort [8]}', True, (255, 255, 0))
-            screen.blit(calvo_sort, (1210, 150))
-            calvo_sort = font_op.render(f'{alvo_sort[10]} : {alvo_sort[11]}', True, (255, 255, 0))
-            screen.blit(calvo_sort, (1210, 300))
+            alvo = font_op.render(f'{alvo_sort[1]} : {alvo_sort[2]}', True, (255, 255, 0))
+            screen.blit(alvo, (1210, 200))
+            alvo = font_op.render(f'{alvo_sort[4]} : {alvo_sort[5]}', True, (255, 255, 0))
+            screen.blit(alvo, (1210, 250))
+            alvo = font_op.render(f'{alvo_sort[7]} : {alvo_sort [8]}', True, (255, 255, 0))
+            screen.blit(alvo, (1210, 150))
+            alvo = font_op.render(f'{alvo_sort[10]} : {alvo_sort[11]}', True, (255, 255, 0))
+            screen.blit(alvo, (1210, 300))
         elif sorteio == 3:
-            calvo_sort = font_op.render(f'{alvo_sort[1]} : {alvo_sort[2]}', True, (255, 255, 0))
-            screen.blit(calvo_sort, (1210, 300))
-            calvo_sort = font_op.render(f'{alvo_sort[4]} : {alvo_sort[5]}', True, (255, 255, 0))
-            screen.blit(calvo_sort, (1210, 250))
-            calvo_sort = font_op.render(f'{alvo_sort[7]} : {alvo_sort [8]}', True, (255, 255, 0))
-            screen.blit(calvo_sort, (1210, 150))
-            calvo_sort = font_op.render(f'{alvo_sort[10]} : {alvo_sort[11]}', True, (255, 255, 0))
-            screen.blit(calvo_sort, (1210, 200))
+            alvo = font_op.render(f'{alvo_sort[1]} : {alvo_sort[2]}', True, (255, 255, 0))
+            screen.blit(alvo, (1210, 300))
+            alvo = font_op.render(f'{alvo_sort[4]} : {alvo_sort[5]}', True, (255, 255, 0))
+            screen.blit(alvo, (1210, 250))
+            alvo = font_op.render(f'{alvo_sort[7]} : {alvo_sort [8]}', True, (255, 255, 0))
+            screen.blit(alvo, (1210, 150))
+            alvo = font_op.render(f'{alvo_sort[10]} : {alvo_sort[11]}', True, (255, 255, 0))
+            screen.blit(alvo, (1210, 200))
         elif sorteio == 4:
-            calvo_sort = font_op.render(f'{alvo_sort[1]} : {alvo_sort [2]}', True, (255, 255, 0))
-            screen.blit(calvo_sort, (1210, 150))
-            calvo_sort = font_op.render(f'{alvo_sort[4]} : {alvo_sort[5]}', True, (255, 255, 0))
-            screen.blit(calvo_sort, (1210, 300))
-            calvo_sort = font_op.render(f'{alvo_sort[7]} : {alvo_sort[8]}', True, (255, 255, 0))
-            screen.blit(calvo_sort, (1210, 200))
-            calvo_sort = font_op.render(f'{alvo_sort[10]} : {alvo_sort[11]}', True, (255, 255, 0))
-            screen.blit(calvo_sort, (1210, 250))
+            alvo = font_op.render(f'{alvo_sort[1]} : {alvo_sort [2]}', True, (255, 255, 0))
+            screen.blit(alvo, (1210, 150))
+            alvo = font_op.render(f'{alvo_sort[4]} : {alvo_sort[5]}', True, (255, 255, 0))
+            screen.blit(alvo, (1210, 300))
+            alvo = font_op.render(f'{alvo_sort[7]} : {alvo_sort[8]}', True, (255, 255, 0))
+            screen.blit(alvo, (1210, 200))
+            alvo = font_op.render(f'{alvo_sort[10]} : {alvo_sort[11]}', True, (255, 255, 0))
+            screen.blit(alvo, (1210, 250))
 
 
-        score = font_score.render(f' Pontuação: {int(pontos)}', True, (255, 255, 0))
+        score = font_op.render(f' Pontuação: {int(pontos)}', True, (255, 255, 0))
         screen.blit(score, (1210, 500))
 
-        tempo = contador / 2
-        cronometro = cronometro_font.render(f' Tempo: {tempo}', True, (255, 255, 0))
+        chances = contador / 2
+        cronometro = font_op.render(f' Chances: {int(chances)}', True, (255, 255, 0))
         screen.blit(cronometro, (1210, 700))
 
 
