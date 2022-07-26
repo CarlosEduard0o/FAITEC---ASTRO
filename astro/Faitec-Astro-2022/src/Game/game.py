@@ -45,9 +45,9 @@ def game_loop(screen: any, screen_i):
     pos_nave_x = 570
     pos_missil_x = 626
     pos_sol_x = 50
-    pos_saturno_x = 396
-    pos_lua_x = 742
-    pos_p_terra_x = 1090
+    pos_saturno_x = 353.33
+    pos_lua_x = 656.66
+    pos_p_terra_x = 960
     pos_nave_y = 700
     pos_missil_y = pos_nave_y
     pos_alvo_y = 50
@@ -89,7 +89,7 @@ def game_loop(screen: any, screen_i):
     missil = pygame.transform.scale(missil, (60, 60))
 
     # Background da gameplay
-    gameplay_bg = pygame.image.load("src\Game\gameplay\gameplay_bg.png").convert()
+    gameplay_bg = pygame.image.load("src\Game\gameplay\gameplay1_bg.jpg").convert()
     gameplay_bg = pygame.transform.scale(gameplay_bg, (screen_i[0][0], screen_i[0][1]))
 
     sol_rect = sol.get_rect()
@@ -140,9 +140,10 @@ def game_loop(screen: any, screen_i):
     pausado = 1
     jogo = rodando
     pontos = 5
+    gameplay = True 
 
     # Loop da gameplay
-    while True:
+    while gameplay == True:
         # Captura dos eventos do PYGAME
         for event in pygame.event.get():
             # KEYDOWN
@@ -192,7 +193,7 @@ def game_loop(screen: any, screen_i):
                 a, b, sorteio, op, alvo_sort = arm_alvo()
                 pos_missil_x, pos_missil_y, triggered, vel_missil_y = respawn_missil()
                 pontos += 1 
-                contador = 0        
+                contador -= 1        
                 # Progredir com a velocidade conforme vai acertando
             elif (missil_rect.colliderect(alvo_sort[3])) or (missil_rect.colliderect(alvo_sort[6])) or (missil_rect.colliderect(alvo_sort[9])):
                 #a, b, sorteio, op, alvo_sort = arm_alvo()
@@ -203,7 +204,7 @@ def game_loop(screen: any, screen_i):
 
         # Movimentação da nave e do míssil pelo eixo x
         pos_nave_x = pos_nave_x + vel_x
-        if (pos_nave_x + 150) > 1240:
+        if (pos_nave_x) > 950:
             vel_x -= 2
             vel_missil_x -= 2
 
@@ -211,7 +212,7 @@ def game_loop(screen: any, screen_i):
             vel_x += 2
             vel_missil_x += 2
             contador += 1
-            if contador == 10:
+            if contador == 100:
                 jogo = derrota
                 if jogo == derrota:
                     pygame.quit()
