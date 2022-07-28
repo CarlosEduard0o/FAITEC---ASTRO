@@ -20,6 +20,7 @@ size = (window_width, window_height)
 # screen = pygame.display.set_mode((size), pygame.FULLSCREEN)
 screen = pygame.display.set_mode((size))
 
+
 while True:
     # Get events in pygame
     for event in pygame.event.get():

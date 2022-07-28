@@ -1,12 +1,15 @@
+from asyncio import events
 from pyexpat.errors import XML_ERROR_SUSPEND_PE
 import pygame
 import random
 from globalFunctions import click
 from Pause.pause import pauseGame
+from Pause.pause import pauseScreen
 from Menu.menu import menu_init, exit_game
 
 # def initialize button button menu
 
+pygame.init()
 
 def init_game(screen, mouse, screen_i):
     x_init = 430
@@ -16,8 +19,7 @@ def init_game(screen, mouse, screen_i):
     if (click(mouse, screen_i, x_init, x_final, y_init, y_final)):
         loading_game(screen, screen_i)
         game_loop(screen, screen_i)
-
-
+        
 def loading_game(screen: any, screen_i):
     i = 0
     while i < 4:
@@ -40,8 +42,61 @@ def loading_game(screen: any, screen_i):
         pygame.time.delay(1000)
         i = i+1
 
+def pause(screen):
+    paused = True
+    info_screen = pygame.display.Info()
+    imx = info_screen.current_w
+    imy = info_screen.current_h
+    screen_i = [imx, imy], [1440, 1024]
+    image_path = "src\Pause\Images\Background.png"
+    background_image = pygame.image.load(image_path).convert()
+    background_image = pygame.transform.scale(
+    background_image, (screen_i[0][0], screen_i[0][1]))
+    screen.blit(background_image, [0, 0])
+    #screen = pygame.display.set_mode((size))
+
+    while paused:
+        tutorial = pygame.Rect(460, 180, 620, 110)
+        pygame.draw.rect(screen, (255, 0, 0), tutorial, 4)
+        musica = pygame.Rect(460, 300, 620, 100)
+        pygame.draw.rect(screen, (255, 0, 0), musica, 4)
+        creditos = pygame.Rect(460, 570, 620, 115)
+        pygame.draw.rect(screen, (255, 0, 0), creditos, 4)
+        voltar = pygame.Rect(1120, 20, 370, 90)
+        pygame.draw.rect(screen, (255, 0, 0), voltar, 4)
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if tutorial.bottomleft:
+                    print("tutorial")
+                if musica.bottomleft:
+                    print("musica")
+                if creditos.bottomleft:
+                    print("creditos")
+                if voltar.bottomleft:
+                    paused = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_p:
+                    paused = False
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    pygame.mouse.set_visible(True)
+        pygame.display.flip()
+        continue
+
+def lose(screen, screen_i: any):
+    derrota = True
+    while derrota:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+                    derrota = False
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+            pygame.mouse.set_visible(True)
+    init_game(screen, screen_i)
 
 def game_loop(screen: any, screen_i):
+
     # Posicionamento dos elementos
     pos_nave_x = 570
     pos_missil_x = 626
@@ -133,19 +188,20 @@ def game_loop(screen: any, screen_i):
 
     a, b, sorteio, op, alvo_sort = arm_alvo()
 
-    rodando = 0
     derrota = 0
-    pausado = 1
-    jogo = rodando
     pontos = 5
     gameplay = True 
+
+    font = pygame.font.SysFont("arial", 30)
 
     # Loop da gameplay
     while gameplay == True:
         # Captura dos eventos do PYGAME
         for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse = event.pos
             # KEYDOWN
-            if event.type == pygame.KEYDOWN:
+            elif event.type == pygame.KEYDOWN:
                 # Se pressionar BACKSPACE o game fecha
                 if event.key == pygame.K_BACKSPACE:
                     pygame.quit()
@@ -153,17 +209,7 @@ def game_loop(screen: any, screen_i):
                 elif event.key == pygame.K_SPACE:
                     triggered = True
                 elif event.key == pygame.K_p:
-                    if jogo != pausado:
-                        jogo = pausado
-                    else:
-                        jogo = rodando
-        if jogo == pausado:
-            #t_pause = font_pause.render(f' PAUSADO ', True, (255, 255, 0))
-            #screen.blit(t_pause, (390, 250))
-            #pygame.mouse.set_visible(True)
-            #pygame.display.flip()
-            pauseGame(screen, screen_i)
-            continue
+                    pause(screen)
 
         # Imagens
         screen.blit(gameplay_bg, [0, 0])
@@ -198,7 +244,8 @@ def game_loop(screen: any, screen_i):
                 #a, b, sorteio, op, alvo_sort = arm_alvo()
                 #pos_missil_x, pos_missil_y, triggered, vel_missil_y = respawn_missil()
                 #pontos -= 1
-                # Colocar aqui a derrota   
+                # Colocar aqui a derrota
+                lose(screen, screen_i)
                 gameplay = False
                 #pygame.quit()
 
@@ -215,8 +262,7 @@ def game_loop(screen: any, screen_i):
             if contador == 200:
                 jogo = derrota
                 if jogo == derrota:
-                    gameplay = False
-                    lose = True
+                    lose(screen, screen_i)
                     #pygame.quit()
                 
 
