@@ -83,18 +83,36 @@ def pause(screen):
         pygame.display.flip()
         continue
 
-def lose(screen, screen_i: any):
+def lose(screen, pontos):
+    font_lose = pygame.font.SysFont("src\Game\letras\PixelGameFont.ttf", 40)
+    info_screen = pygame.display.Info()
+    imx = info_screen.current_w
+    imy = info_screen.current_h
+    screen_i = [imx, imy], [1440, 1024]
+    image_path = "src\Game\gameplay\lose.png"
+    background_image = pygame.image.load(image_path).convert()
+    background_image = pygame.transform.scale(
+    background_image, (screen_i[0][0], screen_i[0][1]))
+    screen.blit(background_image, [0, 0])
     derrota = True
     while derrota:
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
-                    derrota = False
+                    loading_game(screen, screen_i)
+                    game_loop(screen, screen_i)
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
             pygame.mouse.set_visible(True)
-    init_game(screen, screen_i)
-
+        you_lose = font_lose.render(f' You Lose:', True, (0, 0, 0))
+        screen.blit(you_lose, (1210, 100))
+        you_lose = font_lose.render(f' Você conseguiu {int(pontos)} pontos.', True, (0, 0, 0))
+        screen.blit(you_lose, (1210, 200))
+        you_lose = font_lose.render(f' ESC para sair', True, (0, 0, 0))
+        screen.blit(you_lose, (1210, 300))
+        you_lose = font_lose.render(f' R para reiniciar', True, (0, 0, 0))
+        screen.blit(you_lose, (1210, 400))
+        pygame.display.flip()
 def game_loop(screen: any, screen_i):
 
     # Posicionamento dos elementos
@@ -161,10 +179,10 @@ def game_loop(screen: any, screen_i):
 
     # Alvo
 
-    def arm_alvo():
-        a = random.randint(1, 10)
-        b = random.randint(1, 10)
-        c = random.randint(1, 2)
+    def arm_alvo(a1, b1, c1):
+        a = random.randint(1, a1)
+        b = random.randint(1, b1)
+        c = random.randint(1, c1)
         sorteio = random.randint(1, 4)
 
         if c == 1:
@@ -174,6 +192,14 @@ def game_loop(screen: any, screen_i):
         elif c == 2:
             op = "-"
             res = a - b
+
+        elif c == 3:
+            op = "x"
+            res = a * b
+
+        elif c == 4:
+            op = "/"
+            res = a / b
 
         if sorteio == 1:
             alvo_sort = [sol_rect, "sol", res , lua_rect, "lua", (res + a), saturno_rect, "saturno", (res - b), p_terra_rect, "p_terra", (res - c)]
@@ -185,8 +211,10 @@ def game_loop(screen: any, screen_i):
             alvo_sort = [p_terra_rect, "p_terra", res, saturno_rect, "saturno", (res + b), lua_rect, "lua", (res - a), sol_rect, "sol", (res + b)]
 
         return(a, b, sorteio, op, alvo_sort)
-
-    a, b, sorteio, op, alvo_sort = arm_alvo()
+    a1 = 4
+    b1 = 4
+    c1 = 2
+    a, b, sorteio, op, alvo_sort = arm_alvo(a1, b1, c1)
 
     derrota = 0
     pontos = 5
@@ -235,19 +263,21 @@ def game_loop(screen: any, screen_i):
             if pos_missil_y < 0:
                 pos_missil_x, pos_missil_y, triggered, vel_missil_y = respawn_missil()
             if missil_rect.colliderect(alvo_sort[0]):
-                a, b, sorteio, op, alvo_sort = arm_alvo()
+                a1 += 1
+                b1 += 1
+                if a1 == 15:
+                    c1 += 1
+                if a1 == 30:
+                    c1 += 1     
+                a, b, sorteio, op, alvo_sort = arm_alvo(a1, b1, c1)
                 pos_missil_x, pos_missil_y, triggered, vel_missil_y = respawn_missil()
                 pontos += 1 
-                contador -= 1        
+                contador -= 1   
+                print(a1, b1, c1)     
                 # Progredir com a velocidade conforme vai acertando
             elif (missil_rect.colliderect(alvo_sort[3])) or (missil_rect.colliderect(alvo_sort[6])) or (missil_rect.colliderect(alvo_sort[9])):
-                #a, b, sorteio, op, alvo_sort = arm_alvo()
-                #pos_missil_x, pos_missil_y, triggered, vel_missil_y = respawn_missil()
-                #pontos -= 1
-                # Colocar aqui a derrota
-                lose(screen, screen_i)
+                lose(screen, pontos)
                 gameplay = False
-                #pygame.quit()
 
         # Movimentação da nave e do míssil pelo eixo x
         pos_nave_x = pos_nave_x + vel_x
@@ -259,12 +289,12 @@ def game_loop(screen: any, screen_i):
             vel_x += 2
             vel_missil_x += 2
             contador += 1
-            if contador == 200:
+            if chances == 10:
                 jogo = derrota
                 if jogo == derrota:
-                    lose(screen, screen_i)
+                    lose(screen, pontos)
                     #pygame.quit()
-                
+        chances = contador / 2        
 
         # Posição do rect
         sol_rect.x = pos_sol_x
@@ -296,13 +326,13 @@ def game_loop(screen: any, screen_i):
         screen.blit(opera, (1210, 50))
 
         if sorteio == 1:
-            alvo = font_op.render(f'{alvo_sort [8]}', True, (255, 255, 0))
+            alvo = font_op.render(f'{"%.2f" %  alvo_sort [8]}', True, (255, 255, 0))
             screen.blit(alvo, (x_resp, y_resp_1))
-            alvo = font_op.render(f'{alvo_sort[5]}', True, (255, 255, 0))
+            alvo = font_op.render(f'{"%.2f" % alvo_sort[5]}', True, (255, 255, 0))
             screen.blit(alvo, (x_resp, y_resp_2))
-            alvo = font_op.render(f'{alvo_sort[2]}', True, (255, 255, 0))
+            alvo = font_op.render(f'{"%.2f" %  alvo_sort[2]}', True, (255, 255, 0))
             screen.blit(alvo, (x_resp, y_resp_3))
-            alvo = font_op.render(f'{alvo_sort[11]}', True, (255, 255, 0))
+            alvo = font_op.render(f'{"%.2f" %  alvo_sort[11]}', True, (255, 255, 0))
             screen.blit(alvo, (x_resp, y_resp_4))
 
             screen.blit(saturno, (x_icon_resp, y_icon_resp_1))
@@ -310,13 +340,13 @@ def game_loop(screen: any, screen_i):
             screen.blit(sol, (x_icon_resp, y_icon_resp_3))
             screen.blit(p_terra, (x_icon_resp, y_icon_resp_4))
         elif sorteio == 2:
-            alvo = font_op.render(f'{alvo_sort [11]}', True, (255, 255, 0))
+            alvo = font_op.render(f'{"%.2f" %  alvo_sort [11]}', True, (255, 255, 0))
             screen.blit(alvo, (x_resp, y_resp_1))
-            alvo = font_op.render(f'{alvo_sort[2]}', True, (255, 255, 0))
+            alvo = font_op.render(f'{"%.2f" %  alvo_sort[2]}', True, (255, 255, 0))
             screen.blit(alvo, (x_resp, y_resp_2))
-            alvo = font_op.render(f'{alvo_sort[5]}', True, (255, 255, 0))
+            alvo = font_op.render(f'{"%.2f" %  alvo_sort[5]}', True, (255, 255, 0))
             screen.blit(alvo, (x_resp, y_resp_3))
-            alvo = font_op.render(f'{alvo_sort[8]}', True, (255, 255, 0))
+            alvo = font_op.render(f'{"%.2f" %  alvo_sort[8]}', True, (255, 255, 0))
             screen.blit(alvo, (x_resp, y_resp_4))
 
             screen.blit(lua, (x_icon_resp, y_icon_resp_1))
@@ -324,13 +354,13 @@ def game_loop(screen: any, screen_i):
             screen.blit(sol, (x_icon_resp, y_icon_resp_3))
             screen.blit(p_terra, (x_icon_resp, y_icon_resp_4))
         elif sorteio == 3:
-            alvo = font_op.render(f'{alvo_sort [2]}', True, (255, 255, 0))
+            alvo = font_op.render(f'{"%.2f" %  alvo_sort [2]}', True, (255, 255, 0))
             screen.blit(alvo, (x_resp, y_resp_1))
-            alvo = font_op.render(f'{alvo_sort[11]}', True, (255, 255, 0))
+            alvo = font_op.render(f'{"%.2f" %  alvo_sort[11]}', True, (255, 255, 0))
             screen.blit(alvo, (x_resp, y_resp_2))
-            alvo = font_op.render(f'{alvo_sort[8]}', True, (255, 255, 0))
+            alvo = font_op.render(f'{"%.2f" %  alvo_sort[8]}', True, (255, 255, 0))
             screen.blit(alvo, (x_resp, y_resp_3))
-            alvo = font_op.render(f'{alvo_sort[5]}', True, (255, 255, 0))
+            alvo = font_op.render(f'{"%.2f" %  alvo_sort[5]}', True, (255, 255, 0))
             screen.blit(alvo, (x_resp, y_resp_4))
 
             screen.blit(lua, (x_icon_resp, y_icon_resp_1))
@@ -338,13 +368,13 @@ def game_loop(screen: any, screen_i):
             screen.blit(sol, (x_icon_resp, y_icon_resp_3))
             screen.blit(p_terra, (x_icon_resp, y_icon_resp_4))
         elif sorteio == 4:
-            alvo = font_op.render(f'{alvo_sort [5]}', True, (255, 255, 0))
+            alvo = font_op.render(f'{"%.2f" %  alvo_sort [5]}', True, (255, 255, 0))
             screen.blit(alvo, (x_resp, y_resp_1))
-            alvo = font_op.render(f'{alvo_sort[8]}', True, (255, 255, 0))
+            alvo = font_op.render(f'{"%.2f" %  alvo_sort[8]}', True, (255, 255, 0))
             screen.blit(alvo, (x_resp, y_resp_2))
-            alvo = font_op.render(f'{alvo_sort[11]}', True, (255, 255, 0))
+            alvo = font_op.render(f'{"%.2f" %  alvo_sort[11]}', True, (255, 255, 0))
             screen.blit(alvo, (x_resp, y_resp_3))
-            alvo = font_op.render(f'{alvo_sort[2]}', True, (255, 255, 0))
+            alvo = font_op.render(f'{"%.2f" %  alvo_sort[2]}', True, (255, 255, 0))
             screen.blit(alvo, (x_resp, y_resp_4))
 
             screen.blit(saturno, (x_icon_resp, y_icon_resp_1))
@@ -356,7 +386,6 @@ def game_loop(screen: any, screen_i):
         score = font_op.render(f' Pontuação: {int(pontos)}', True, (255, 255, 0))
         screen.blit(score, (1210, 100))
 
-        chances = contador / 2
         cronometro = font_op.render(f' Chances: {int(chances)}', True, (255, 255, 0))
         screen.blit(cronometro, (1210, 150))
 
